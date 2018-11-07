@@ -1,0 +1,292 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package kruskal_algorithm;
+
+import java.util.*;
+
+/**
+ *
+ * @author Lenovo
+ */
+public class Kruskal_algorithm {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+
+        final int INF = 999;
+        int[][] Matrix = {
+            {INF, 3, INF, INF, 6, 5},
+            {3, INF, 1, INF, INF, 4},
+            {INF, 1, INF, 6, INF, 4},
+            {INF, INF, 6, INF, 8, 5},
+            {6, INF, INF, 8, INF, 2},
+            {5, 4, 4, 5, 2, INF}
+
+        };
+
+        Kruskal(Matrix, INF);
+
+        System.out.println("");
+
+    }
+
+    public static void Kruskal(int[][] Matrix, int INF) {
+
+        /*
+         Kruskal’s Algorithm
+        
+        
+         - Description:
+        
+        
+         - Parameters:
+        
+        
+        
+         - Output:
+         */
+        // for the edges 
+        ArrayList<Edge> sortedEdges = new ArrayList<>();
+
+        char[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+        char[] labels = new char[Matrix.length];
+
+        // when we add the edges in the MST
+        int[] added = new int[Matrix.length];
+
+        // initilize 
+        for (int i = 0; i < Matrix.length; i++) {
+
+            labels[i] = alphabet[i];
+            added[i] = 0;
+
+        }
+
+        // 
+        int[][] visited = new int[Matrix.length][Matrix[0].length];
+
+        // initilize 
+        for (int i = 0; i < visited.length; i++) {
+            for (int j = 0; j < visited[i].length; j++) {
+                visited[i][j] = 0;
+
+            }
+        }
+
+        //"Now adding edges (without sorting)
+        //   System.out.println("Now adding edges (without sorting)");
+        for (int i = 0; i < Matrix.length; i++) {
+            for (int j = 0; j < Matrix[i].length; j++) {
+
+                if (Matrix[i][j] != INF && visited[i][j] == 0) {
+
+                    visited[i][j] = 1;
+                    visited[j][i] = 1;
+
+                    // take the info for the source, destinitation, edge between them
+                    LLnode source = new LLnode(i, labels[i]);
+                    LLnode destination = new LLnode(j, labels[j]);
+                    Edge edge = new Edge(source, destination, Matrix[i][j]);
+                    sortedEdges.add(edge);
+                    //  System.out.println(edge.getSource().getLabel() + " -> " + edge.getDestination().getLabel() + " with the cost of " + edge.getDistance());
+
+                } // if
+
+            }// 2d for 
+        }// 1st for 
+
+        // sort the edges in the arrayList
+        Collections.sort(sortedEdges, new Comparator<Edge>() {
+            @Override
+            public int compare(Edge Edge1, Edge Edge2) {
+                int edge1 = Edge1.distance;
+                int edge2 = Edge2.distance;
+                return Integer.valueOf(edge1).compareTo(edge2);
+
+            }
+        });
+
+        System.out.println("***Now printing sorted edges***");
+        for (int i = 0; i < sortedEdges.size(); i++) {
+            // object to travers along the array 
+            Edge Thisedge = sortedEdges.get(i);
+            System.out.println(Thisedge.getSource().getLabel() + " -> " + Thisedge.getDestination().getLabel() + " , cost: " + Thisedge.getDistance());
+
+        }
+
+        // initilize the MST
+        
+        LinkedList[] MST = new LinkedList[Matrix.length];
+        for (int i = 0; i < MST.length; i++) {
+            MST[i] = new LinkedList();
+        }
+//
+//        System.out.println("\n\n\nEdges have been sorted. Now creating a new set for each edge: \n");
+//        System.out.println("makeSet()");
+//        LinkedList[] set = new LinkedList[Matrix.length];
+//        for (int i = 0; i < set.length; i++) {
+//            set[i] = new LinkedList();
+//            set[i].makeSet(i, labels[i]);
+//            System.out.println("[" + set[i].getSource().getLabel() + "]");
+//        }
+
+        System.out.println("\nKruskal running... Edges connected:");
+
+        // initilize variables 
+        int Edge_counter = 0;
+        // just an index
+        int k = 0;
+       
+        int totalWeight = 0;
+      
+        
+        while (Edge_counter < Matrix.length - 1) {
+
+          
+            
+            // if the index is less than the number of edges
+            if (k < sortedEdges.size()) {
+
+                // (u,v): u is the source, v is the destinitation
+                // get the location of src,dest
+                LLnode u = sortedEdges.get(k).getSource();
+                LLnode v = sortedEdges.get(k).getDestination();
+                // ex(b,c)= (1,2)
+                int uINDX = u.getIndex();
+               
+                int vINDX = v.getIndex();
+                
+                
+                // src and dest are the same 
+                if (MST[uINDX].isEmpty()) {
+
+                    // if it is empty, then add the (u,v)
+                    // add the v in the MST of u
+                    // and add the u in the MST of v
+                    // cause it is undirected graph
+                    
+                    MST[uINDX].InsertNeighborNODE(v);
+                    MST[vINDX].InsertNeighborNODE(u);
+                    // make the added = 1 (means added)
+                    added[vINDX] = 1;
+                    added[uINDX] = 1;
+
+                    // print out the edges we added 
+                    System.out.println(u.getLabel() + "->" + v.getLabel());
+
+                    // collect their weights 
+                    totalWeight += sortedEdges.get(k).getDistance();
+
+                } 
+                else { // else if the MST of specific node is not empty, contains some neighbors 
+                    // MST doesnt contain all the edges, it is restricted with the minimum ones
+                    if (uINDX < MST.length && vINDX < MST.length) {
+
+                        
+                        LinkedList uList = MST[uINDX];
+                        LinkedList vList = MST[vINDX];
+                        boolean theresACycle = MST[k].findCycle(u, v, uList, vList);
+
+                        if (theresACycle) {
+                            // skip this row, col, and increment the index
+                            // to get to another edge
+                          
+                            k += 1;
+                            continue;
+
+                        } else { // not a cycle
+
+                            /// if next edge nodes have been visited
+                         // but there is at least one node from the next + 1 edge that has not been visited
+                         // and does not create a cycle,
+                           // then choose the next +1 edge in the next iteration
+                            boolean current_u_is_visited = added[uINDX] == 1;
+                            boolean current_v_is_visited = added[vINDX] == 1;
+
+                            // take the second index to see if it has other edges 
+                            int nextINDX = k + 1;
+
+                            //determine the next nodes edges(src,dest)
+                            LLnode nextINDX_u = sortedEdges.get(nextINDX).getSource();
+                           
+                            LLnode nextINDX_v = sortedEdges.get(nextINDX).getDestination();
+
+                            
+                            boolean next_u_is_Visited = added[nextINDX_u.getIndex()] == 1;
+                            boolean next_v_is_Visited = added[nextINDX_v.getIndex()] == 1;
+
+//                            if ((current_u_is_visited || current_v_is_visited) && (!next_u_is_Visited || !next_v_is_Visited)) //       
+//                            {
+//                                System.out.println("hwwwwwwwww");
+//                                row = +1;
+//                                column = +1;
+//                                k += 1;
+//                                continue;
+//                            }
+
+
+                            
+                            int afterNXTINDX = nextINDX + 1;
+
+                            if (sortedEdges.get(afterNXTINDX).getSource().getIndex() < added.length) {
+
+                                LLnode afterNXTINDX_u = sortedEdges.get(afterNXTINDX).getSource();
+                                LLnode afterNXTINDX_v = sortedEdges.get(afterNXTINDX).getDestination();
+
+                                boolean after_next_u_is_Visited = added[afterNXTINDX_u.getIndex()] == 1;
+                                boolean after_next_v_is_Visited = added[afterNXTINDX_v.getIndex()] == 1;
+                                if ((next_u_is_Visited || next_v_is_Visited) && (!after_next_u_is_Visited || !after_next_v_is_Visited)) //                                if (== 1 && added[afterNXTINDX] == 0) {
+                                {
+                                   // increment with two becuase we are in position (afterNext)
+                                   
+                                    k += 2;
+                                    continue;
+
+                                }
+                            }
+                            // we have checked the priority of each node
+                            // here we are done with priority and the node with us has the highest priority
+                            
+                            added[vINDX] = 1;
+                            added[uINDX] = 1;
+
+                            MST[uINDX].InsertNeighborNODE(v);
+                            MST[vINDX].InsertNeighborNODE(u);
+
+                            System.out.println(u.getLabel() + "->" + v.getLabel());
+
+                            totalWeight += sortedEdges.get(k).getDistance();
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            
+            // travers along the array
+            Edge_counter += 1;
+            k += 1;
+
+        }
+
+        System.out.println("Final MST: \n\n");
+        for (int i = 0; i < MST.length; i++) {
+            System.out.print(labels[i] + "-> ");
+            // print all the neighbors for this node 
+            MST[i].PrintNeighbors();
+            System.out.println("");
+        }
+        System.out.println("Total weight :" + totalWeight);
+
+    } // kruskal method 
+
+    // *******************************
+}// class
